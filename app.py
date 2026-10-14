@@ -66,6 +66,8 @@ def init_db():
                 problem=?, error=?, resolution=?, resolutionText=?, signer=?, signature='Yes', notes=?
                 WHERE id=? AND COALESCE(parts,'')='' ''', (*values, demo_id))
 
+init_db()
+
 def row_to_dict(row):
     item = dict(row)
     item['submitted'] = bool(item['submitted'])
