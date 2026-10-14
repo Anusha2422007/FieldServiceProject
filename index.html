@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Service Report Management System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="logged-out">
+<section id="loginScreen" class="login-overlay">
+  <form id="loginForm" class="login-card">
+    <div class="login-logo"><strong>ORACLE</strong><span>Field Service</span></div>
+    <div class="login-symbol">👤</div>
+    <h1>Welcome Back</h1>
+    <p class="login-subtitle">Sign in to Field Service Report Management</p>
+    <label for="loginUsername">Username</label>
+    <input id="loginUsername" name="username" type="text" placeholder="Enter username" autocomplete="username" required>
+    <label for="loginPassword">Password</label>
+    <input id="loginPassword" name="password" type="password" placeholder="Enter password" autocomplete="current-password" required>
+    <p class="login-demo-hint">Demo login: any non-empty username and password (backend demo authentication)</p>
+    <p id="loginError" class="login-error" role="alert"></p>
+    <button type="submit" class="login-submit">Login</button>
+    <p class="login-security-note">Demo only — not connected to a secure authentication server.</p>
+  </form>
+</section>
+
+<header class="topbar oracle-header">
+  <div class="oracle-brand"><strong>ORACLE</strong><span>Field Service</span></div>
+  <div class="system-heading">Field Service Report Management System</div>
+  <div class="oracle-user no-print">
+    <button type="button" class="oracle-icon" id="notificationBtn" aria-label="Notifications">🔔<span class="notification-dot">3</span></button>
+    <button type="button" class="oracle-icon" id="helpBtn" aria-label="Help">❔</button>
+    <div class="profile-menu">
+      <button type="button" id="profileBtn" class="profile-btn">👤 <span id="profileName">John Smith</span> ▾</button>
+      <div id="profileDropdown" class="profile-dropdown">
+        <div class="profile-label">Signed in as <strong id="profileNameDropdown">John Smith</strong></div>
+        <button type="button" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+  </div>
+  <nav class="nav no-print">
+    <button class="active" data-page="dashboard">Dashboard</button>
+    <button data-page="workflow">Field Service Flow</button>
+    <button data-page="report">Create FSR</button>
+    <button data-page="summary">FSR Summary</button>
+  </nav>
+</header>
+<main>
+<section id="dashboard" class="page active">
+  <h1 class="dashboard-title">Field Service Report Management System</h1>
+  <div class="panel">
+    <div class="panel-title">⌕ FILTER OPTIONS <span class="muted" style="color:#dce8f8">Search, filter and review reports</span></div>
+    <div class="panel-body">
+      <div class="filters">
+        <div class="field"><label for="dateFrom">FSR Submit Date — From</label><input id="dateFrom" type="date" value="2026-06-01"></div>
+        <div class="field"><label for="dateTo">FSR Submit Date — To</label><input id="dateTo" type="date" value="2026-06-30"></div>
+        <div class="field"><label for="engineer">Resource / Engineer</label><select id="engineer"><option value="">All Engineers</option></select></div>
+        <div class="field"><label for="workOrder">Work Order Number</label><input id="workOrder" placeholder="e.g. WO100245"></div>
+        <div class="field"><label for="activityStatus">Activity Status</label><select id="activityStatus"><option value="">All Statuses</option><option>Pending</option><option>Started</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div>
+      </div>
+      <div class="quick"><strong>Quick Range:</strong><label><input type="radio" name="range" value="1" checked> 1 Month</label><label><input type="radio" name="range" value="2"> 2 Months</label><label><input type="radio" name="range" value="3"> 3 Months</label></div>
+      <div class="checks"><strong>FSR Status:</strong><label><input id="submitted" type="checkbox" checked> FSR Submitted</label><label><input id="notSubmitted" type="checkbox"> Not Submitted &amp; Not Saved</label>
+        <div class="actions" style="margin-left:auto"><button class="btn primary" id="searchBtn">⌕ Search</button><button class="btn" id="clearBtn">× Clear</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="stat"><span class="muted">Total Activities</span><strong id="totalStat">8</strong><span class="muted">Matching current filters</span></div>
+    <div class="stat"><span class="muted">FSR Submitted</span><strong id="submittedStat">7</strong><span class="muted">Reports saved/submitted</span></div>
+    <div class="stat"><span class="muted">Pending Reports</span><strong id="pendingStat">1</strong><span class="muted">Need follow-up</span></div>
+  </div>
+  <div class="dashboard-charts">
+    <article class="chart-panel"><h2>Activity Status Overview</h2><div id="statusChart" class="status-chart" aria-label="Activity counts by status"></div></article>
+    <article class="chart-panel"><h2>FSR Submission Summary</h2><div class="submission-chart-wrap"><div id="submissionDonut" class="submission-donut"><span id="submittedPercent">88%</span></div><div class="chart-legend"><p><i class="legend-submitted"></i> Submitted <b id="chartSubmitted">7</b></p><p><i class="legend-pending"></i> Pending <b id="chartPending">1</b></p><p><i class="legend-total"></i> Total activities <b id="chartTotal">8</b></p></div></div></article>
+    <article class="chart-panel"><h2>Activity Types</h2><div id="typeChart" class="type-chart" aria-label="Activity counts by type"></div></article>
+  </div>
+  <div class="panel" style="margin-top:18px">
+    <div class="panel-title"><span>▤ FSR Activity Data</span><div class="actions"><span class="count" id="resultCount">8 records found</span><button class="btn" id="excelBtn">▦ Export Excel</button><button class="btn" id="pdfBtn">▣ Export PDF</button></div></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>ACTIVITY ID</th><th>ACTIVITY TYPE</th><th>STATUS</th><th>ACTIVITY DATE</th><th>WO NUMBER</th><th>WO SR NUMBER</th><th>ASSET NAME</th><th>CUSTOMER NAME</th><th>ENGINEER</th><th>FSR DISABLE</th><th>FSR SAVE</th><th>FSR SUBMIT DATE</th></tr></thead><tbody id="activityRows"></tbody></table></div>
+  </div>
+  <div class="notice">Demo note: This version uses sample records in your browser. It is not connected to a real Oracle Fusion or Oracle Field Service account.</div>
+</section>
+<section id="workflow" class="page">
+  <div class="panel workflow-panel">
+    <div class="panel-title">FIELD SERVICE FLOW — FROM ORACLE FUSION B2B TO FSR SUBMISSION</div>
+    <div class="panel-body">
+      <div class="workflow-slider" id="workflowSlider" aria-live="polite">
+        <div class="workflow-slide" data-title="Work Activity Created in Oracle Fusion B2B">
+          <div class="workflow-visual" aria-hidden="true"><div class="visual-brand">ORACLE</div><div class="visual-subtitle">Fusion B2B</div><div class="visual-icon">🛒</div><div class="visual-caption">Customer Order / Service Request</div></div>
+          <div class="workflow-copy"><span class="workflow-number">1</span><h2>Work Activity Created in Oracle Fusion B2B</h2><p>A customer order or service request is created in Fusion B2B. A Work Activity (WA) is generated.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="WA Interfaced to OFS via OIC">
+          <div class="workflow-visual"><div class="visual-icon cloud-icon">☁️</div><div class="visual-brand">OIC</div><div class="visual-caption">Oracle Integration Cloud</div></div>
+          <div class="workflow-copy"><span class="workflow-number">2</span><h2>WA Interfaced to OFS via Oracle Integration Cloud (OIC)</h2><p>WA data is validated and integrated to Oracle Field Service (OFS) using the OIC integration flow.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Activity Created in OFS">
+          <div class="workflow-visual"><div class="visual-brand">ORACLE</div><div class="visual-subtitle">Field Service</div><div class="visual-icon">🖥️</div><div class="visual-caption">New Work Activity +</div></div>
+          <div class="workflow-copy"><span class="workflow-number">3</span><h2>Activity Created in OFS</h2><p>The Work Activity is created in OFS with all required customer, asset and activity details.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Dispatcher Assigns and Schedules Activity">
+          <div class="workflow-visual"><div class="visual-icon">🎧</div><div class="visual-icon small-visual">🗓️ ⏱️</div><div class="visual-caption">Dispatcher • Calendar • Schedule</div></div>
+          <div class="workflow-copy"><span class="workflow-number">4</span><h2>Dispatcher Assigns &amp; Schedules Activity</h2><p>The dispatcher reviews the WA, assigns it to a Field Service Engineer (FSE), and schedules the activity date and time.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="FSE Travels to Customer Location">
+          <div class="workflow-visual"><div class="visual-icon">👨‍🔧 🚗</div><div class="visual-caption">📍 Customer location</div></div>
+          <div class="workflow-copy"><span class="workflow-number">5</span><h2>FSE Travels to Customer Location</h2><p>The FSE reviews activity details, parts and tools required, and travels to the customer location.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Start Day of Work and Start WA">
+          <div class="workflow-visual"><div class="phone-illustration"><div class="phone-screen">▶</div></div><div class="visual-caption">OFS Mobile App</div></div>
+          <div class="workflow-copy"><span class="workflow-number">6</span><h2>Start Day of Work &amp; Start WA</h2><p>The FSE reaches the site, starts the day of work, and starts the Work Activity in the OFS mobile app.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Perform Work and Fill FSR Report Details">
+          <div class="workflow-visual"><div class="visual-icon">📋</div><div class="visual-caption">Complete the field service report</div></div>
+          <div class="workflow-copy"><span class="workflow-number">7</span><h2>Perform Work &amp; Fill FSR Report Details</h2><p>The FSE performs the work and fills in the FSR with the following details. Use Next to review each report section.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Parts Used">
+          <div class="workflow-visual"><div class="visual-icon">🛠️</div><div class="visual-caption">Parts • Quantity • Serial / Lot</div></div>
+          <div class="workflow-copy"><span class="workflow-number">7A</span><h2>Parts Used</h2><p>Record the parts used in the activity, quantity, and serial or lot number when applicable.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Parts Returned">
+          <div class="workflow-visual"><div class="visual-icon">📦 ↩️</div><div class="visual-caption">Returned parts and condition</div></div>
+          <div class="workflow-copy"><span class="workflow-number">7B</span><h2>Parts Returned</h2><p>Record excess or unused parts returned, quantity, and condition.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Labor Hours">
+          <div class="workflow-visual"><div class="visual-icon">⏱️</div><div class="visual-caption">Regular • Overtime • Total</div></div>
+          <div class="workflow-copy"><span class="workflow-number">7C</span><h2>Labor Hours</h2><p>Capture regular hours, overtime hours, and total labor hours.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Expenses">
+          <div class="workflow-visual"><div class="visual-icon">👛</div><div class="visual-caption">Travel • Meal • Hotel • Other</div></div>
+          <div class="workflow-copy"><span class="workflow-number">7D</span><h2>Expenses</h2><p>Enter travel, meal, hotel stay, and other expenses.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Problem, Error and Resolution Codes">
+          <div class="workflow-visual"><div class="visual-icon">📋</div><div class="visual-caption">Problem • Error • Resolution</div></div>
+          <div class="workflow-copy"><span class="workflow-number">7E</span><h2>Problem / Error / Resolution Codes</h2><p>Capture the applicable problem code, error code, and resolution code.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Customer Signature">
+          <div class="workflow-visual"><div class="visual-icon signature-visual">✍️</div><div class="visual-caption">Customer signs on mobile</div></div>
+          <div class="workflow-copy"><span class="workflow-number">7F</span><h2>Customer Signature</h2><p>Capture the customer signature on the mobile device after work completion.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Complete Work Activity">
+          <div class="workflow-visual"><div class="visual-icon complete-visual">✓</div><div class="visual-caption">All required details captured</div></div>
+          <div class="workflow-copy"><span class="workflow-number">8</span><h2>Complete Work Activity</h2><p>The FSE completes the WA after finishing the work and capturing all required details.</p></div>
+        </div>
+        <div class="workflow-slide" data-title="Submit FSR">
+          <div class="workflow-visual"><div class="visual-icon cloud-icon">☁️ ⬆️</div><div class="visual-caption">Report submitted</div></div>
+          <div class="workflow-copy"><span class="workflow-number">9</span><h2>Submit FSR</h2><p>The FSE submits the FSR report. Data is saved in OFS and available for reporting and billing purposes.</p></div>
+        </div>
+      </div>
+      <div class="workflow-controls">
+        <button type="button" class="btn" id="workflowBack" disabled>← Back</button>
+        <div class="workflow-progress-wrap"><div class="workflow-progress-label" id="workflowProgressLabel">Step 1 of 15</div><div class="workflow-progress-track"><div id="workflowProgressBar"></div></div></div>
+        <button type="button" class="btn primary" id="workflowNext">Next →</button>
+      </div>
+      <div class="workflow-dots" id="workflowDots" aria-label="Choose a workflow step"></div>
+      <div class="notice" style="margin-top:16px">Integration summary: Oracle Fusion B2B → Oracle Integration Cloud (OIC) → Oracle Field Service (OFS) → Field Service Report (FSR).</div>
+    </div>
+  </div>
+</section>
+<section id="report" class="page">
+  <div class="panel"><div class="panel-title">CREATE FIELD SERVICE REPORT <span class="muted" style="color:#dce8f8">Technician report form demo</span></div><div class="panel-body">
+    <div class="notice">Fill in the fields below and click Submit FSR. The backend API saves the report to the SQLite database.</div>
+    <form id="fsrForm">
+      <div class="wizard-progress" aria-live="polite"><span id="wizardStepLabel">Step 1 of 7</span><div class="wizard-track"><div id="wizardProgressBar"></div></div><strong id="wizardStepTitle">Activity Details</strong></div>
+      <div class="report-grid" id="reportWizard">
+      <div class="report-section wizard-step"><h3>1. Activity Details</h3>
+        <div class="field"><label>Work Order Number *</label><input name="wo" required value="WO100245"></div>
+        <div class="field"><label>Customer Name *</label><input name="customer" required value="City Care Hospital"></div>
+        <div class="field"><label>Asset / Equipment</label><input name="asset" value="MRI Scanner - Model X1"></div>
+        <div class="field"><label>Activity Type</label><select name="type"><option>Installation</option><option>Preventive Maintenance</option><option>Repair</option><option>Calibration</option><option>Safety Inspection</option><option>Replacement</option></select></div>
+        <div class="field"><label>Engineer *</label><input name="engineer" required value="John Smith"></div>
+        <div class="field"><label>Work Description</label><textarea name="description" placeholder="Describe the work performed"></textarea></div>
+      </div>
+      <div class="report-section wizard-step"><h3>2. Parts Used</h3>
+        <div class="field"><label>Part Name / Number</label><textarea name="parts" placeholder="e.g. Cable Assembly - Qty 2"></textarea></div>
+        <div class="field"><label>Quantity / Serial or Lot</label><input name="partsDetails" placeholder="e.g. Qty 2, LOT12345"></div>
+        <div class="field"><label>Tools / Equipment Used</label><input name="tools" placeholder="e.g. Standard tool kit"></div>
+      </div>
+      <div class="report-section wizard-step"><h3>3. Parts Returned</h3>
+        <div class="field"><label>Unused / Excess Parts Returned</label><textarea name="returned" placeholder="e.g. Power module - Qty 1"></textarea></div>
+        <div class="field"><label>Quantity and Condition</label><input name="returnedDetails" placeholder="e.g. Qty 1, unopened"></div>
+      </div>
+      <div class="report-section wizard-step"><h3>4. Labor Hours</h3>
+        <div class="field"><label>Regular Hours</label><input name="regular" type="number" min="0" step=".25" value="6"></div>
+        <div class="field"><label>Overtime Hours</label><input name="overtime" type="number" min="0" step=".25" value="1.5"></div>
+        <div class="field"><label>Travel Time (hours)</label><input name="travel" type="number" min="0" step=".25" value="1"></div>
+      </div>
+      <div class="report-section wizard-step"><h3>5. Expenses</h3>
+        <div class="field"><label>Travel Expense (₹)</label><input name="travelCost" type="number" min="0" value="120"></div>
+        <div class="field"><label>Meal Expense (₹)</label><input name="mealCost" type="number" min="0" value="35"></div>
+        <div class="field"><label>Hotel Stay (₹)</label><input name="hotelCost" type="number" min="0" value="180"></div>
+        <div class="field"><label>Other Expenses (₹)</label><input name="otherCost" type="number" min="0" value="25"></div>
+      </div>
+      <div class="report-section wizard-step"><h3>6. Problem / Error / Resolution</h3>
+        <div class="field"><label>Problem Code</label><input name="problem" placeholder="e.g. PRB001"></div>
+        <div class="field"><label>Error Code</label><input name="error" placeholder="e.g. ERR015"></div>
+        <div class="field"><label>Resolution Code</label><input name="resolution" placeholder="e.g. RES002"></div>
+        <div class="field"><label>Resolution Description</label><textarea name="resolutionText" placeholder="Explain how the issue was resolved"></textarea></div>
+      </div>
+      <div class="report-section wizard-step"><h3>7. Customer Signature, Attachments &amp; Submit</h3>
+        <div class="field"><label>Customer Name</label><input name="signer" placeholder="Customer representative"></div>
+        <div class="field"><label>Customer Acknowledgement</label><select name="signature"><option value="No">Not captured</option><option value="Yes">Captured (demo)</option></select></div>
+        <div class="field"><label>Service Notes</label><textarea name="notes" placeholder="Additional notes or recommendations"></textarea></div>
+        
+        <div class="field"><label for="attachments">Upload PDF / photos / documents</label><input id="attachments" name="attachments" type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" multiple><small>Selected files will be uploaded and attached to this FSR when you submit the report.</small><ul id="selectedFiles"></ul></div>
+        <div class="field"><label>Customer Signature (draw below)</label><canvas id="signatureCanvas" width="620" height="160" aria-label="Draw customer signature"></canvas><div class="actions"><button class="btn" type="button" id="clearSignature">Clear Signature</button></div></div>
+
+      </div>
+      <div class="actions full no-print wizard-actions">
+        <button class="btn" type="button" id="wizardBack" disabled>← Back</button>
+        <span class="wizard-spacer"></span>
+        <button class="btn" type="button" id="backDashboard">Back to Dashboard</button>
+        <button class="btn" type="reset">Clear Form</button>
+        <button class="btn primary" type="button" id="wizardNext">Next →</button>
+        <button class="btn primary" type="submit" id="wizardSubmit" hidden>✓ Submit FSR</button>
+      </div>
+    </div></form>
+  </div></div>
+</section>
+
+<section id="summary" class="page summary-page"><div class="summary-head"><div><h1>FSR Summary – WA-100245 <span class="summary-status">Submitted</span></h1><p>Customer: City Care Hospital　 |　 Asset: MRI Scanner - Model X1　 |　 Date: 02-Jun-2026</p></div><div class="summary-actions no-print"><button class="btn" onclick="window.print()">✎ Edit</button><button class="btn" onclick="window.print()">▣ View PDF</button><button class="btn" id="summaryExport">▦ Export</button></div></div>
+<div class="summary-tabs" id="summaryTabs"><button class="selected" data-tab="Overview">Overview</button><button data-tab="Parts">Parts</button><button data-tab="Labor">Labor</button><button data-tab="Expenses">Expenses</button><button data-tab="Codes">Codes</button><button data-tab="Attachments">Attachments</button><button data-tab="Audit Trail">Audit Trail</button></div><div id="summaryNotice" class="notice">Select an activity ID in the dashboard to view its FSR details.</div><div class="summary-layout"><div class="summary-main"><div class="summary-cards">
+<article class="summary-card"><h3>Activity Information</h3><dl><dt>Work Order</dt><dd>WO-100245</dd><dt>Work Activity</dt><dd>WA-100245</dd><dt>Activity Type</dt><dd>Installation</dd><dt>Status</dt><dd>Completed</dd><dt>Start Time</dt><dd>02-Jun-2026 09:15 AM</dd><dt>End Time</dt><dd>02-Jun-2026 02:20 PM</dd></dl></article>
+<article class="summary-card"><h3>Summary</h3><dl><dt>Total Labor Hours</dt><dd>7.50</dd><dt>Total Parts Used</dt><dd>4</dd><dt>Total Expenses (₹)</dt><dd>360.00</dd><dt>Customer Signature</dt><dd><span class="captured">✓ Captured</span></dd></dl></article>
+<article class="summary-card"><h3>Labor &amp; Expenses Chart</h3><div class="chart-content"><div class="donut"></div><ul><li><i class="blue"></i> Labor (65%) <b>520.00</b></li><li><i class="orange"></i> Travel (20%) <b>120.00</b></li><li><i class="green"></i> Hotel (30%) <b>180.00</b></li><li><i class="purple"></i> Others (7%) <b>25.00</b></li></ul></div></article>
+<article class="summary-card signature-card"><h3>Signature</h3><div class="signature-image">A. Roberts</div><p>Alice Roberts<br>Biomedical Engineer<br>02-Jun-2026 02:25 PM <span class="captured">Verified</span></p></article></div>
+<div class="summary-bottom"><article class="summary-card"><h3>Parts Used</h3><div class="table-wrap"><table class="summary-table"><thead><tr><th>Part Number</th><th>Description</th><th>Serial/Lot</th><th>Qty</th><th>UOM</th></tr></thead><tbody><tr><td>CABLE-ASSY-01</td><td>Cable Assembly</td><td>LOT12345</td><td>2</td><td>EA</td></tr><tr><td>PWR-MOD-02</td><td>Power Module</td><td>LOT67890</td><td>1</td><td>EA</td></tr><tr><td>COOL-FAN-01</td><td>Cooling Fan</td><td>LOT33321</td><td>1</td><td>EA</td></tr></tbody></table></div></article><article class="summary-card"><h3>Attachments</h3><ul class="attachment-list"><li>📎 <a href="#" onclick="alert('Demo attachment preview');return false">Installation Photos.pdf</a><span>2.1 MB</span></li><li>📎 <a href="#" onclick="alert('Demo attachment preview');return false">System Verification.pdf</a><span>1.8 MB</span></li><li>📎 <a href="#" onclick="alert('Demo attachment preview');return false">Customer Acceptance.pdf</a><span>1.2 MB</span></li></ul></article></div></div>
+<aside class="summary-side"><article class="summary-card highlights"><h2>Key Highlights</h2><p>🟢 All data captured in mobility</p><p>🟢 Customer signature captured on site</p><p>🟢 FSR submitted and stored in OFS</p><p>🟢 Available for reporting &amp; billing</p></article><article class="summary-card"><h2>Code Reference (Examples)</h2><table class="summary-table"><thead><tr><th>Type</th><th>Code</th><th>Description</th></tr></thead><tbody><tr><td>Problem Code</td><td>PRB001</td><td>Installation Issue</td></tr><tr><td>Error Code</td><td>ERR015</td><td>Cable Alignment</td></tr><tr><td>Resolution Code</td><td>RES002</td><td>Adjusted &amp; Verified</td></tr></tbody></table></article><article class="summary-card lifecycle"><h2>FSR Lifecycle</h2><div><span>▤</span><b>→</b><span>↗</span><b>→</b><span>✓</span><b>→</b><span>☁</span></div><p>Draft　　In Progress　　Completed　　Submitted</p><p class="lifecycle-check">✓　　　　✓　　　　✓</p></article></aside></div></section>
+
+<div class="footer">Field Service Report Management System · Student project demo · Sample data only</div>
+</main>
+<script src="script.js"></script>
+
+<script>
+(function () {
+  document.body.classList.add("logged-out");
+  const loginForm = document.getElementById("loginForm");
+  const loginScreen = document.getElementById("loginScreen");
+  const loginError = document.getElementById("loginError");
+  const usernameInput = document.getElementById("loginUsername");
+  const passwordInput = document.getElementById("loginPassword");
+  const profileName = document.getElementById("profileName");
+  const profileNameDropdown = document.getElementById("profileNameDropdown");
+  const profileDropdown = document.getElementById("profileDropdown");
+
+  loginForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    if (!username || !password) {
+      loginError.textContent = "Please enter both username and password.";
+      return;
+    }
+    const submitButton = loginForm.querySelector("button[type=submit]");
+    submitButton.disabled = true;
+    loginError.textContent = "Connecting to backend...";
+    try {
+      const response = await fetch("/api/login", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({username, password})});
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Login failed");
+      const displayName = result.displayName;
+      profileName.textContent = displayName;
+      profileNameDropdown.textContent = displayName;
+      document.body.classList.remove("logged-out");
+      loginScreen.hidden = true;
+      loginError.textContent = "";
+    } catch (error) {
+      loginError.textContent = "Backend connection failed. Start the server and try again.";
+    } finally { submitButton.disabled = false; }
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    profileDropdown.classList.remove("open");
+    loginScreen.hidden = false;
+    document.body.classList.add("logged-out");
+    loginForm.reset();
+    loginError.textContent = "";
+    usernameInput.focus();
+  });
+
+  document.getElementById("profileBtn").addEventListener("click", function (event) {
+    event.stopPropagation();
+    profileDropdown.classList.toggle("open");
+  });
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest(".profile-menu")) profileDropdown.classList.remove("open");
+  });
+  document.getElementById("notificationBtn").addEventListener("click", function () {
+    alert("You have 3 demo notifications. Live notifications are not connected.");
+  });
+  document.getElementById("helpBtn").addEventListener("click", function () {
+    alert("Help: Use Dashboard to filter reports, Create FSR to enter a report, and FSR Summary to view the sample summary.");
+  });
+})();
+</script>
+
+
+<div id="activityModal" class="modal-backdrop" hidden><div class="modal-card"><div class="modal-head"><h2 id="modalTitle">Activity Details</h2><button type="button" class="btn" id="closeModal">✕ Close</button></div><div id="modalBody"></div></div></div>
+<script src="enhancements.js"></script>
+</body>
+</html>
