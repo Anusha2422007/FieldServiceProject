@@ -133,3 +133,44 @@ body.logged-out > .footer { display: none !important; }
 .workflow-dots button.selected{background:#07336d;color:#fff;border-color:#07336d;box-shadow:0 0 0 3px #dceaff}
 @keyframes workflowAppear{from{opacity:.5;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
 @media(max-width:650px){.workflow-slide.workflow-current{grid-template-columns:1fr;gap:18px;padding:16px;min-height:0}.workflow-slider{min-height:0}.workflow-visual{min-height:160px;padding:14px}.visual-icon{font-size:62px}.phone-illustration{width:75px;height:120px}.workflow-copy h2{font-size:22px}.workflow-copy p{font-size:14px}.workflow-controls{gap:8px}.workflow-controls button{min-width:78px;padding:9px 10px}.workflow-dots{gap:5px}.workflow-dots button{width:25px;height:25px}}
+
+
+/* Previous and Next page navigation */
+.page-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.page-navigation span {
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.page-navigation button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+  .page-navigation {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .page-navigation button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .page-navigation span {
+    text-align: center;
+  }
+}

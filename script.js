@@ -106,3 +106,56 @@ const summaryExportButton=document.getElementById("summaryExport");if(summaryExp
   });
   show(0);
 })();
+
+
+/* Main page Previous / Next navigation.
+   Keeps the existing workflow slideshow and report wizard unchanged. */
+(() => {
+  const pages = ["dashboard", "workflow", "report", "summary"];
+  const back = document.getElementById("pageBack");
+  const next = document.getElementById("pageNext");
+  const label = document.getElementById("pageStep");
+
+  if (!back || !next || !label) {
+    console.warn("Main page navigation controls are missing from index.html.");
+    return;
+  }
+
+  function updatePageNavigation() {
+    const activePage = document.querySelector(".page.active");
+    let index = pages.indexOf(activePage?.id);
+
+    if (index < 0) index = 0;
+
+    back.disabled = index === 0;
+    next.disabled = index === pages.length - 1;
+    label.textContent = `Page ${index + 1} of ${pages.length}`;
+    next.textContent = index === pages.length - 1
+      ? "Finish ✓"
+      : "Next →";
+  }
+
+  back.addEventListener("click", () => {
+    const index = pages.indexOf(
+      document.querySelector(".page.active")?.id
+    );
+    if (index > 0) showPage(pages[index - 1]);
+    updatePageNavigation();
+  });
+
+  next.addEventListener("click", () => {
+    const index = pages.indexOf(
+      document.querySelector(".page.active")?.id
+    );
+    if (index >= 0 && index < pages.length - 1) {
+      showPage(pages[index + 1]);
+    }
+    updatePageNavigation();
+  });
+
+  document.querySelectorAll(".nav button").forEach(button => {
+    button.addEventListener("click", updatePageNavigation);
+  });
+
+  updatePageNavigation();
+})();
